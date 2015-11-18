@@ -27,6 +27,7 @@ import org.springframework.cloud.dataflow.module.deployer.ModuleDeployer;
 import org.springframework.cloud.lattice.LatticeProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
 /**
@@ -61,6 +62,7 @@ public class LatticeConfiguration {
 	}
 
 	@AutoConfigureBefore(RedisAutoConfiguration.class)
+	@Profile("lattice")
 	protected static class RedisConfig {
 
 		@Bean
