@@ -21,8 +21,10 @@ import org.cloudfoundry.receptor.client.ReceptorClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.Cloud;
 import org.springframework.cloud.CloudFactory;
+import org.springframework.cloud.dataflow.module.ModuleLauncherProperties;
 import org.springframework.cloud.dataflow.module.deployer.ModuleDeployer;
 import org.springframework.cloud.lattice.LatticeProperties;
 import org.springframework.context.annotation.Bean;
@@ -40,19 +42,23 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 @Configuration
 public class LatticeConfiguration {
 
+	@EnableConfigurationProperties(ModuleLauncherProperties.class)
 	protected static class LatticeConfig {
 
 		@Autowired
 		private LatticeProperties latticeProperties;
 
+		@Autowired
+		private ModuleLauncherProperties moduleLauncherProperties;
+
 		@Bean
 		public ModuleDeployer processModuleDeployer() {
-			return new LrpModuleDeployer(receptorClient(), latticeProperties.getReceptor().getHost());
+			return new LrpModuleDeployer(receptorClient(), latticeProperties.getReceptor().getHost(), moduleLauncherProperties.getLauncherProperties());
 		}
 
 		@Bean
 		public ModuleDeployer taskModuleDeployer() {
-			return new TaskModuleDeployer();
+			return new TaskModuleDeployer(moduleLauncherProperties.getLauncherProperties());
 		}
 
 		@Bean

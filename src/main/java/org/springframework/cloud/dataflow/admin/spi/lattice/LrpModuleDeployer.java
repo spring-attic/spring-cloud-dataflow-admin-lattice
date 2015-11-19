@@ -37,8 +37,11 @@ import org.springframework.cloud.dataflow.module.deployer.ModuleDeployer;
 import org.springframework.util.StringUtils;
 
 /**
+ * {@link ModuleDeployer} implementation to deploy LRP into lattice environment.
+ *
  * @author Patrick Peralta
  * @author Mark Fisher
+ * @author Ilayaperumal Gopinathan
  */
 public class LrpModuleDeployer implements ModuleDeployer {
 
@@ -54,9 +57,12 @@ public class LrpModuleDeployer implements ModuleDeployer {
 
 	private final StatusMapper receptorProcessStatusMapper = new StatusMapper();
 
-	public LrpModuleDeployer(ReceptorClient receptorClient, String receptorHost) {
+	private final Map<String, String> moduleLauncherProperties;
+
+	public LrpModuleDeployer(ReceptorClient receptorClient, String receptorHost, Map<String,String> moduleLauncherProperties) {
 		this.receptorClient = receptorClient;
 		this.receptorHost = receptorHost;
+		this.moduleLauncherProperties = moduleLauncherProperties;
 	}
 
 	@Override
@@ -82,6 +88,10 @@ public class LrpModuleDeployer implements ModuleDeployer {
 		rawArgs.put(JMX_DEFAULT_DOMAIN_KEY, String.format("%s.%s", request.getDefinition().getGroup(), request.getDefinition().getLabel()));
 		Map<String, String> qualifiedArgs = ModuleArgumentQualifier.qualifyArgs(0, rawArgs);
 		for (Map.Entry<String, String> entry : qualifiedArgs.entrySet()) {
+			environmentVariables.add(new EnvironmentVariable(entry.getKey(), entry.getValue()));
+		}
+		// add module launcher/resolver properties that will be used at the module launcher
+		for (Map.Entry<String, String> entry : moduleLauncherProperties.entrySet()) {
 			environmentVariables.add(new EnvironmentVariable(entry.getKey(), entry.getValue()));
 		}
 		environmentVariables.add(new EnvironmentVariable("SPRING_CLOUD_LATTICE_RECEPTOR_HOST", receptorHost));
