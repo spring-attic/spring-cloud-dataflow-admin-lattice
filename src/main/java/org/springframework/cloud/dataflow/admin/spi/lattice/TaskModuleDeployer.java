@@ -50,6 +50,12 @@ public class TaskModuleDeployer implements ModuleDeployer {
 
 	private final StatusMapper statusMapper = new StatusMapper();
 
+	private final Map<String, String> moduleLauncherProperties;
+
+	public TaskModuleDeployer(Map<String, String> moduleLauncherProperties) {
+		this.moduleLauncherProperties = moduleLauncherProperties;
+	}
+
 	@Override
 	public ModuleDeploymentId deploy(ModuleDeploymentRequest request) {
 		ModuleDeploymentId id =
@@ -76,7 +82,10 @@ public class TaskModuleDeployer implements ModuleDeployer {
 		for (Map.Entry<String, String> entry : request.getDefinition().getParameters().entrySet()) {
 			environmentVariables.add(new EnvironmentVariable(entry.getKey(), entry.getValue()));
 		}
-
+		// add module launcher/resolver properties that will be used at the module launcher
+		for (Map.Entry<String, String> entry : moduleLauncherProperties.entrySet()) {
+			environmentVariables.add(new EnvironmentVariable(entry.getKey(), entry.getValue()));
+		}
 		task.setEnv(environmentVariables.toArray(new EnvironmentVariable[environmentVariables.size()]));
 		task.setMemoryMb(512);
 
