@@ -1,3 +1,5 @@
+# spring-cloud-dataflow-admin-lattice is no longer actively maintained by VMware, Inc.
+
 Spring Cloud Data Flow Admin for Lattice
 ----------------------------------------
 
